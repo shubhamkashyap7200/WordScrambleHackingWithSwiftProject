@@ -15,9 +15,8 @@ struct ContentView: View {
     @State private var errorTitle = ""
     @State private var errorMessage = ""
     @State private var showingError = false
-    
-    //    let people = ["Finn", "Leia", "Luke", "Rey"]
-    
+    @State private var userScore = 0
+        
     var body: some View {
         NavigationStack {
             List {
@@ -47,6 +46,18 @@ struct ContentView: View {
             } message: {
                 Text(errorMessage)
             }
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Text("Score: \(userScore)")
+                }
+                
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Restart game") {
+                        resetGame()
+                        startGame()
+                    }
+                }
+            }
         }
     }
     
@@ -54,6 +65,11 @@ struct ContentView: View {
         
         let answer = newWord.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
         guard newWord.count > 0 else { return }
+        guard answer != rootWord else {
+            wordError(title: "Word not original", message: "Be more original")
+            return
+        }
+        
         guard isOriginal(word: answer) else {
             wordError(title: "Word used already", message: "Be more original")
             return
@@ -73,7 +89,15 @@ struct ContentView: View {
         withAnimation {
             usedWords.insert(answer, at: 0)
         }
+        
+        userScore += 1
         newWord = ""
+    }
+    
+    func resetGame() {
+        usedWords.removeAll()
+        newWord = ""
+        userScore = 0
     }
     
     func startGame() {
